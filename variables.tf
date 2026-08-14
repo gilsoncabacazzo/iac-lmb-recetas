@@ -16,7 +16,7 @@ variable "environment" {
 }
 variable "function_name" {
   type        = string
-  default     = "lmb-pagos"
+  default     = "lmb-recetas"
   description = "nombre de la lambda"
 }
 

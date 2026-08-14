@@ -9,7 +9,7 @@ resource "aws_lambda_layer_version" "node_dependencies" {
 }
 
 # 2. Crear la función Lambda apuntando al ZIP de código generado por GitHub
-resource "aws_lambda_function" "pagos" {
+resource "aws_lambda_function" "recetas" {
   function_name    = "${var.project_name}-${var.function_name}-${var.environment}"
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.handler"
