@@ -169,8 +169,11 @@ function response(statusCode, body) {
   return {
     statusCode,
     headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*"
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Methods": "PATCH,OPTIONS,GET,POST,PUT",
+    "Access-Control-Allow-Headers":
+      "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,x-usuario-id,x-consultorio-id,consultorio_id",
     },
     body: JSON.stringify(body)
   };
