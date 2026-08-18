@@ -29,8 +29,8 @@ export const handler = async (event) => {
       return acc;
     }, {});
 
-    const consultorio_id = normalizedHeaders['consultorio_id'];
-    const usuario_id = normalizedHeaders['usuario_id'];
+    const consultorio_id = normalizedHeaders['x-consultorio_id'];
+    const usuario_id = normalizedHeaders['x-usuario_id'];
 
     // Validar headers obligatorios (excepto para GET ALL si decides no exigirlos, aunque aquí los pedimos)
     if (!consultorio_id) {
