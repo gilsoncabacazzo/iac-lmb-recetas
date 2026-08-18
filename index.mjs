@@ -104,7 +104,8 @@ async function crearReceta(data, consultorio_id, usuario_id) {
   await docClient.send(new UpdateCommand({
       TableName: TABLE_RESERVA, // Reemplaza por el nombre real de tu tabla de reservas
       Key: {
-        reserva_id: data.reserva_id // Asumiendo que turno_id es el valor que corresponde a la PK reserva_id
+        reserva_id: data.reserva_id,
+        createdAt: data.createdAt // Asumiendo que turno_id es el valor que corresponde a la PK reserva_id
       },
       UpdateExpression: "SET #estado = :nuevoEstado, #fecha_actualizacion = :fechaActual",
       ExpressionAttributeNames: {
