@@ -17,6 +17,7 @@ const TABLE_PACIENTE= `tbl-docfy-pacientes-${entornoActual}`;
 
 export const handler = async (event) => {
   console.log("EVENTO RECIBIDO:", JSON.stringify(event, null, 2));
+  console.log(TABLE_RESERVA,TABLE_PACIENTE);
 
   try {
     const httpMethod = event.httpMethod || event.requestContext?.http?.method;
