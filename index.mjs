@@ -88,7 +88,7 @@ async function crearReceta(data, consultorio_id, usuario_id) {
     consultorio_id,
     usuario_id: usuario_id || "sistema",
     turno_id: data.reserva_id || null,
-    paciente_id: data.nro_documento || null,
+    paciente_id: data.paciente_id || null,
     medicamentos, // Lista estructurada con nombre, dosis y días
     indicaciones: data.indicaciones || "",
     createdAt,
@@ -119,7 +119,7 @@ async function crearReceta(data, consultorio_id, usuario_id) {
     await docClient.send(new UpdateCommand({
       TableName: TABLE_PACIENTE, // Reemplaza por el nombre real de tu tabla de pacientes
       Key: {
-        nro_documento: data.nro_documento // Asumiendo que la PK de pacientes es paciente_id
+        nro_documento: data.paciente_id // Asumiendo que la PK de pacientes es paciente_id
       },
       UpdateExpression: "SET #ultima_consulta = :fechaConsulta, #fecha_actualizacion = :fechaActualizacion",
       ExpressionAttributeNames: {
