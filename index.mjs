@@ -10,8 +10,10 @@ import { randomUUID } from "crypto";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
-
-const TABLE_NAME = "tbl-docfy-recetas-dev";
+const entornoActual = process.env.NODE_ENV;
+const TABLE_NAME = `tbl-docfy-recetas-${entornoActual}`;
+const TABLE_RESERVA= `tbl-docfy-reservas-${entornoActual}`;
+const TABLE_PACIENTE= `tbl-docfy-pacientes-${entornoActual}`;
 
 export const handler = async (event) => {
   console.log("EVENTO RECIBIDO:", JSON.stringify(event, null, 2));
@@ -84,8 +86,8 @@ async function crearReceta(data, consultorio_id, usuario_id) {
     receta_id,
     consultorio_id,
     usuario_id: usuario_id || "sistema",
-    turno_id: data.turno_id || null,
-    paciente_id: data.paciente_id || null,
+    turno_id: data.reserva_id || null,
+    paciente_id: data.nro_documento || null,
     medicamentos, // Lista estructurada con nombre, dosis y días
     indicaciones: data.indicaciones || "",
     createdAt,
@@ -96,6 +98,39 @@ async function crearReceta(data, consultorio_id, usuario_id) {
     TableName: TABLE_NAME,
     Item: nuevaReceta
   }));
+
+  await docClient.send(new UpdateCommand({
+      TableName: TABLE_RESERVA, // Reemplaza por el nombre real de tu tabla de reservas
+      Key: {
+        reserva_id: data.reserva_id // Asumiendo que turno_id es el valor que corresponde a la PK reserva_id
+      },
+      UpdateExpression: "SET #estado = :nuevoEstado, #fecha_actualizacion = :fechaActual",
+      ExpressionAttributeNames: {
+        "#estado": "estado", // 'estado' suele ser palabra reservada en DynamoDB, por eso se usa alias
+        "#fecha_actualizacion": "updatedAt"
+      },
+      ExpressionAttributeValues: {
+        ":nuevoEstado": "AF",
+        ":fechaActual": new Date().toISOString()
+      }
+    }));
+
+    await docClient.send(new UpdateCommand({
+      TableName: TABLE_PACIENTE, // Reemplaza por el nombre real de tu tabla de pacientes
+      Key: {
+        nro_documento: data.paciente_id // Asumiendo que la PK de pacientes es paciente_id
+      },
+      UpdateExpression: "SET #ultima_consulta = :fechaConsulta, #fecha_actualizacion = :fechaActualizacion",
+      ExpressionAttributeNames: {
+        "#ultima_consulta": "ultima_consulta", // O el nombre del atributo que uses en tu base de datos para este campo
+        "#fecha_actualizacion": "fecha_actualizacion"
+      },
+      ExpressionAttributeValues: {
+        ":fechaConsulta": createdAt,
+        ":fechaActualizacion": createdAt
+      }
+    }));
+
 
   return response(201, { mensaje: "Receta creada exitosamente", data: nuevaReceta });
 }
