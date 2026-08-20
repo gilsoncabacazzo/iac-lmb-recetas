@@ -167,7 +167,7 @@ async function obtenerRecetaPorTurno(turnoId, consultorioId) {
     const params = {
       TableName: TABLE_NAME, // Asegúrate de tener esta variable con el nombre de tu tabla
       IndexName: "reserva-id-index", // Nombre exacto de tu GSI en DynamoDB
-      KeyConditionExpression: "reserva_id = :turnoId",
+      KeyConditionExpression: "turno_id = :turnoId",
       ExpressionAttributeValues: {
         ":turnoId": turnoId,
       },
