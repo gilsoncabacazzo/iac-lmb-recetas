@@ -17,7 +17,6 @@ const TABLE_PACIENTE= `tbl-docfy-pacientes-${entornoActual}`;
 
 export const handler = async (event) => {
   console.log("EVENTO RECIBIDO:", JSON.stringify(event, null, 2));
-  console.log(TABLE_RESERVA,TABLE_PACIENTE);
 
   try {
     const httpMethod = event.httpMethod || event.requestContext?.http?.method;
@@ -47,12 +46,14 @@ export const handler = async (event) => {
     switch (httpMethod) {
       case "POST":
         return await crearReceta(body, consultorio_id, usuario_id);
-
       case "GET":
-        if (pathParameters.receta_id) {
-          return await obtenerRecetaPorId(pathParameters.receta_id, consultorio_id);
-        } else {
-          return await listarRecetasPorConsultorio(consultorio_id);
+        switch (event.resource) {
+          case "/turnos/{id}":
+            return await obtenerRecetaPorId(pathParameters.id, consultorio_id);
+          case "/turnos/{id}/receta":
+            return await obtenerRecetaPorTurno(pathParameters.id, consultorio_id);
+          default:
+            return response(404, { error: "Ruta no encontrada." });
         }
 
       case "PUT":
@@ -158,20 +159,34 @@ async function obtenerRecetaPorId(receta_id, consultorio_id) {
   return response(200, { data: result.Item });
 }
 
-async function listarRecetasPorConsultorio(consultorio_id) {
-  // Usamos el GSI 'consultorio_id' para listar de forma eficiente
-  const result = await docClient.send(new QueryCommand({
-    TableName: TABLE_NAME,
-    IndexName: "consultorio_id", // Asegúrate de que este sea el nombre exacto del GSI en Terraform
-    KeyConditionExpression: "consultorio_id = :cid",
-    ExpressionAttributeValues: {
-      ":cid": consultorio_id
+async function obtenerRecetaPorTurno(turnoId, consultorioId) {
+  try {
+    const params = {
+      TableName: TABLE_NAME, // Asegúrate de tener esta variable con el nombre de tu tabla
+      IndexName: "turno-id-index", // Nombre exacto de tu GSI en DynamoDB
+      KeyConditionExpression: "turno_id = :turnoId",
+      ExpressionAttributeValues: {
+        ":turnoId": turnoId,
+      },
+    };
+
+    const command = new QueryCommand(params);
+    const result = await docClient.send(command);
+
+    // Como un turno tiene una sola receta, evaluamos si existe algún elemento
+    const receta = result.Items && result.Items.length > 0 ? result.Items[0] : null;
+
+    // Opcional: Si quieres validar también por seguridad que pertenezca al consultorio actual
+    if (receta && receta.consultorio_id !== consultorioId) {
+      return response(404, { error: "Receta no encontrada para este consultorio." });
     }
-  }));
 
-  return response(200, { data: result.Items || [] });
+    return response(200, receta); // Retorna la receta o 'null' si aún no fue creada
+  } catch (error) {
+    console.error("Error al obtener la receta por turno:", error);
+    return response(500, { error: "Error interno al consultar la receta." });
+  }
 }
-
 async function actualizarReceta(receta_id, data, consultorio_id) {
   // Primero verificamos que exista y pertenezca al consultorio
   const existing = await docClient.send(new GetCommand({
