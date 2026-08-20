@@ -17,10 +17,13 @@ const TABLE_PACIENTE= `tbl-docfy-pacientes-${entornoActual}`;
 
 export const handler = async (event) => {
   console.log("EVENTO RECIBIDO:", JSON.stringify(event, null, 2));
+  
 
   try {
     const httpMethod = event.httpMethod || event.requestContext?.http?.method;
     const pathParameters = event.pathParameters || {};
+    console.log(httpMethod,pathParameters,event.resource);
+
     
     // Normalizar headers a minúsculas para evitar problemas de mayúsculas/minúsculas
     const headers = event.headers || {};
@@ -43,7 +46,6 @@ export const handler = async (event) => {
       body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
     }
 
-    console.log(httpMethod,pathParameters,event.resource);
 
     switch (httpMethod) {
       case "POST":
