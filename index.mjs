@@ -90,8 +90,10 @@ async function crearReceta(data, consultorio_id, usuario_id) {
     usuario_id: usuario_id || "sistema",
     turno_id: data.reserva_id || null,
     paciente_id: data.paciente_id || null,
-    medicamentos, // Lista estructurada con nombre, dosis y días
+    motivo_consulta:data.motivo_consulta,
+    diagnostico:data.diagnostico,
     indicaciones: data.indicaciones || "",
+    medicamentos, // Lista estructurada con nombre, dosis y días
     createdAt,
     fecha_actualizacion: createdAt
   };
@@ -190,9 +192,10 @@ async function actualizarReceta(receta_id, data, consultorio_id) {
   const result = await docClient.send(new UpdateCommand({
     TableName: TABLE_NAME,
     Key: { receta_id },
-    UpdateExpression: "SET medicamentos = :m, indicaciones = :i, fecha_actualizacion = :f",
+    UpdateExpression: "SET medicamentos = :m, indicaciones = :i, fecha_actualizacion = :f, diagnostico = :d",
     ExpressionAttributeValues: {
       ":m": data.medicamentos || existing.Item.medicamentos,
+      ":d": data.diagnostico !== undefined ? data.diagnostico : existing.Item.diagnostico,
       ":i": data.indicaciones !== undefined ? data.indicaciones : existing.Item.indicaciones,
       ":f": fecha_actualizacion
     },
