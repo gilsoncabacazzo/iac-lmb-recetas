@@ -43,6 +43,8 @@ export const handler = async (event) => {
       body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
     }
 
+    console.log(httpMethod,pathParameters,event.resource);
+
     switch (httpMethod) {
       case "POST":
         return await crearReceta(body, consultorio_id, usuario_id);
