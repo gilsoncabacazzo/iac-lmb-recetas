@@ -22,7 +22,6 @@ export const handler = async (event) => {
   try {
     const httpMethod = event.httpMethod || event.requestContext?.http?.method;
     const pathParameters = event.pathParameters || {};
-    console.log(httpMethod,pathParameters,event.resource);
 
     
     // Normalizar headers a minúsculas para evitar problemas de mayúsculas/minúsculas
@@ -167,7 +166,7 @@ async function obtenerRecetaPorTurno(turnoId, consultorioId) {
   try {
     const params = {
       TableName: TABLE_NAME, // Asegúrate de tener esta variable con el nombre de tu tabla
-      IndexName: "turno-id-index", // Nombre exacto de tu GSI en DynamoDB
+      IndexName: "reserva-id-index", // Nombre exacto de tu GSI en DynamoDB
       KeyConditionExpression: "turno_id = :turnoId",
       ExpressionAttributeValues: {
         ":turnoId": turnoId,
