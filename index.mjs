@@ -211,7 +211,7 @@ async function actualizarReceta(id, data, consultorio_id) {
 
   const result = await docClient.send(new UpdateCommand({
     TableName: TABLE_NAME,
-    Key: { "receta_id":id },
+    Key: { "receta_id":id ,"createdAt":data.createdAt},
     UpdateExpression: "SET medicamentos = :m, indicaciones = :i, fecha_actualizacion = :f, diagnostico = :d",
     ExpressionAttributeValues: {
       ":m": data.medicamentos || existing.Item.medicamentos,
