@@ -60,10 +60,10 @@ export const handler = async (event) => {
         }
 
       case "PUT":
-        if (!pathParameters.receta_id) {
-          return response(400, { error: "Se requiere el 'receta_id' en la ruta para actualizar." });
+        if (!pathParameters.id) {
+          return response(400, { error: "Se requiere el 'id' en la ruta para actualizar." });
         }
-        return await actualizarReceta(pathParameters.receta_id, body, consultorio_id);
+        return await actualizarReceta(pathParameters.id, body, consultorio_id);
 
       default:
         return response(405, { error: `Método ${httpMethod} no permitido.` });
@@ -190,11 +190,11 @@ async function obtenerRecetaPorTurno(turnoId, consultorioId) {
     return response(500, { error: "Error interno al consultar la receta." });
   }
 }
-async function actualizarReceta(receta_id, data, consultorio_id) {
+async function actualizarReceta(id, data, consultorio_id) {
   // Primero verificamos que exista y pertenezca al consultorio
   const existing = await docClient.send(new GetCommand({
     TableName: TABLE_NAME,
-    Key: { receta_id }
+    Key: { "receta_id":id }
   }));
 
   if (!existing.Item) {
@@ -209,7 +209,7 @@ async function actualizarReceta(receta_id, data, consultorio_id) {
 
   const result = await docClient.send(new UpdateCommand({
     TableName: TABLE_NAME,
-    Key: { receta_id },
+    Key: { "receta_id":id },
     UpdateExpression: "SET medicamentos = :m, indicaciones = :i, fecha_actualizacion = :f, diagnostico = :d",
     ExpressionAttributeValues: {
       ":m": data.medicamentos || existing.Item.medicamentos,
