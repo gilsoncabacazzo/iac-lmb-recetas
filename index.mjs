@@ -194,7 +194,9 @@ async function actualizarReceta(id, data, consultorio_id) {
   // Primero verificamos que exista y pertenezca al consultorio
   const existing = await docClient.send(new GetCommand({
     TableName: TABLE_NAME,
-    Key: { "receta_id":id }
+    Key: { "receta_id":id,
+           "createdAt":data.createdAt 
+           }
   }));
 
   if (!existing.Item) {
