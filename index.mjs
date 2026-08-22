@@ -97,6 +97,7 @@ async function crearReceta(data, consultorio_id, usuario_id) {
     motivo_consulta:data.motivo_consulta,
     diagnostico:data.diagnostico,
     indicaciones: data.indicaciones || "",
+    signos_vitales: data.signos_vitales,
     medicamentos, // Lista estructurada con nombre, dosis y días
     createdAt,
     fecha_actualizacion: createdAt
@@ -197,7 +198,7 @@ async function actualizarReceta(id, data, consultorio_id) {
     Key: { "receta_id":id,
            "createdAt":data.createdAt 
            }
-  }));
+    }));
 
   if (!existing.Item) {
     return response(404, { error: "Receta no encontrada." });
@@ -212,9 +213,10 @@ async function actualizarReceta(id, data, consultorio_id) {
   const result = await docClient.send(new UpdateCommand({
     TableName: TABLE_NAME,
     Key: { "receta_id":id ,"createdAt":data.createdAt},
-    UpdateExpression: "SET medicamentos = :m, indicaciones = :i, fecha_actualizacion = :f, diagnostico = :d",
+    UpdateExpression: "SET medicamentos = :m, indicaciones = :i, fecha_actualizacion = :f, diagnostico = :d,signos_vitales = :s",
     ExpressionAttributeValues: {
       ":m": data.medicamentos || existing.Item.medicamentos,
+      ":s": data.signos_vitales || existing.Item.signos_vitales,
       ":d": data.diagnostico !== undefined ? data.diagnostico : existing.Item.diagnostico,
       ":i": data.indicaciones !== undefined ? data.indicaciones : existing.Item.indicaciones,
       ":f": fecha_actualizacion
